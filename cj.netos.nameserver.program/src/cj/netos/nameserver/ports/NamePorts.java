@@ -34,7 +34,7 @@ public class NamePorts implements INamePorts {
                 list.add(info);
             }
         }
-        return null;
+        return list;
     }
 
     private PortInfo _getPortinfo(NodeState state) {
