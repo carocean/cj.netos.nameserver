@@ -1,0 +1,2 @@
+include "cj.netos.nameserver.program"
+include "cj.netos.nameserver.openports"
