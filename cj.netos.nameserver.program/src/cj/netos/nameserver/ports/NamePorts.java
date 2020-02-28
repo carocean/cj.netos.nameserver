@@ -10,10 +10,11 @@ import cj.studio.ecm.annotation.CjService;
 import cj.studio.ecm.annotation.CjServiceRef;
 import cj.studio.ecm.net.CircuitException;
 import cj.studio.openport.ISecuritySession;
-import cj.studio.openport.annotations.CjOpenport;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @CjService(name = "/nameports.service")
 public class NamePorts implements INamePorts {
@@ -22,14 +23,14 @@ public class NamePorts implements INamePorts {
 
     @Override
     public List<PortInfo> workablePortList(ISecuritySession securitySession) throws CircuitException {
-        String cjql = "select {'tuple':'*'} from tuple router.nodes.states ?(clazz) where {'tuple.isRunning':'true'}";
-        IQuery<NodeState> query = home.createQuery(cjql);
-        query.setParameter("clazz", NodeState.class.getName());
-        List<IDocument<NodeState>> docs = query.getResultList();
+        String cjql = "select {'tuple.nodeName':1}.distinct() from tuple router.nodes.states ?(clazz) where {'tuple.isRunning':true}";
+        IQuery<String> query = home.createQuery(cjql);
+        query.setParameter("clazz", String.class.getName());
+        List<IDocument<String>> docs = query.getResultList();
         List<PortInfo> list = new ArrayList<>();
-        for (IDocument<NodeState> doc : docs) {
-            NodeState state = doc.tuple();
-            PortInfo info = _getPortinfo(state);
+        for (IDocument<String> doc : docs) {
+            String nodeName = doc.tuple();
+            PortInfo info = _getPortinfo(nodeName);
             if (info != null) {
                 list.add(info);
             }
@@ -37,12 +38,11 @@ public class NamePorts implements INamePorts {
         return list;
     }
 
-    private PortInfo _getPortinfo(NodeState state) {
-        String cjql = "select {'tuple':'*'}.limit(1) from tuple router.nodes.ports ?(clazz) where {'tuple.routerName':'?(routerName)','tuple.nodeName':'?(nodeName)'}";
+    private PortInfo _getPortinfo(String nodeName) {
+        String cjql = "select {'tuple':'*'}.limit(1) from tuple router.nodes.ports ?(clazz) where {'tuple.nodeName':'?(nodeName)'}";
         IQuery<PortInfo> query = home.createQuery(cjql);
         query.setParameter("clazz", PortInfo.class.getName());
-        query.setParameter("routerName", state.getRouterName());
-        query.setParameter("nodeName", state.getNodeName());
+        query.setParameter("nodeName", nodeName);
         IDocument<PortInfo> doc = query.getSingleResult();
         if (doc == null) {
             return null;

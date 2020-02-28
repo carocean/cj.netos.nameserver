@@ -1,17 +1,9 @@
 package cj.netos.nameserver.entities;
 
 public class PortInfo {
-    String routerName;
     String nodeName;
     String openports;
 
-    public String getRouterName() {
-        return routerName;
-    }
-
-    public void setRouterName(String routerName) {
-        this.routerName = routerName;
-    }
 
     public String getNodeName() {
         return nodeName;
@@ -27,8 +19,5 @@ public class PortInfo {
 
     public void setOpenports(String openports) {
         this.openports = openports;
-    }
-    public String getKey(){
-        return String.format("%s.%s", routerName, nodeName);
     }
 }
