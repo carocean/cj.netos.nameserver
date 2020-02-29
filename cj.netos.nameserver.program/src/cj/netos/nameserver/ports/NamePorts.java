@@ -23,7 +23,7 @@ public class NamePorts implements INamePorts {
 
     @Override
     public List<PortInfo> workablePortList(ISecuritySession securitySession) throws CircuitException {
-        String cjql = "select {'tuple.nodeName':1}.distinct() from tuple router.nodes.states ?(clazz) where {'tuple.isRunning':'true'}";
+        String cjql = "select {'tuple.nodeName':1}.distinct() from tuple router.nodes.states ?(clazz) where {'tuple.isRunning':true}";
         IQuery<String> query = home.createQuery(cjql);
         query.setParameter("clazz", String.class.getName());
         List<IDocument<String>> docs = query.getResultList();
