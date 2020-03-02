@@ -3,7 +3,7 @@ package cj.netos.nameserver.entities;
 public class NodeState {
     String routerName;
     String nodeName;
-    boolean isRunning;
+    String isRunning;
 
     public String getRouterName() {
         return routerName;
@@ -21,11 +21,11 @@ public class NodeState {
         this.nodeName = nodeName;
     }
 
-    public boolean isRunning() {
+    public String isRunning() {
         return isRunning;
     }
 
-    public void setRunning(boolean running) {
+    public void setRunning(String running) {
         isRunning = running;
     }
 }
