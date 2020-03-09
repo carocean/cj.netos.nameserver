@@ -18,35 +18,25 @@ import java.util.Map;
 
 @CjService(name = "/nameports.service")
 public class NamePorts implements INamePorts {
+    final String _KEY_COL_NAME = "flow.network.nodes";
     @CjServiceRef(refByName = "mongodb.netos.home")
     ICube home;
 
     @Override
     public List<PortInfo> workablePortList(ISecuritySession securitySession) throws CircuitException {
-        String cjql = "select {'tuple.nodeName':1}.distinct() from tuple router.nodes.states ?(clazz) where {'tuple.isRunning':'true'}";
-        IQuery<String> query = home.createQuery(cjql);
-        query.setParameter("clazz", String.class.getName());
-        List<IDocument<String>> docs = query.getResultList();
+        String cjql = "select {'tuple.peerName':1,'tuple.ports.openports':1} from tuple ?(colname) ?(clazz) where {'tuple.isOpened':true}";
+        IQuery<Map<String, Object>> query = home.createQuery(cjql);
+        query.setParameter("colname", _KEY_COL_NAME);
+        query.setParameter("clazz", HashMap.class.getName());
         List<PortInfo> list = new ArrayList<>();
-        for (IDocument<String> doc : docs) {
-            String nodeName = doc.tuple();
-            PortInfo info = _getPortinfo(nodeName);
-            if (info != null) {
-                list.add(info);
-            }
+        List<IDocument<Map<String, Object>>> docs = query.getResultList();
+        for (IDocument<Map<String, Object>> doc : docs) {
+            PortInfo portInfo = new PortInfo();
+            portInfo.setNodeName(doc.tuple().get("peerName") + "");
+            portInfo.setOpenports(((Map<String,Object>)doc.tuple().get("ports")).get("openports") + "");
+            list.add(portInfo);
         }
         return list;
     }
 
-    private PortInfo _getPortinfo(String nodeName) {
-        String cjql = "select {'tuple':'*'}.limit(1) from tuple router.nodes.ports ?(clazz) where {'tuple.nodeName':'?(nodeName)'}";
-        IQuery<PortInfo> query = home.createQuery(cjql);
-        query.setParameter("clazz", PortInfo.class.getName());
-        query.setParameter("nodeName", nodeName);
-        IDocument<PortInfo> doc = query.getSingleResult();
-        if (doc == null) {
-            return null;
-        }
-        return doc.tuple();
-    }
 }
